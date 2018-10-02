@@ -1,6 +1,6 @@
 from app import db, ma
 
-class User(db.models):
+class UserModel(db.Model):
   __tablename__ = "users"
 
   id = db.Column(db.Integer, primary_key=True)
@@ -46,6 +46,6 @@ class User(db.models):
 
 class UserSchema(ma.ModelSchema):
   class meta:
-    model = User
+    model = UserModel
 
 

@@ -12,7 +12,7 @@ class User(Resource):
     return user_data
 
 
-class UserList(Resource)
+class UserList(Resource):
 
   def get(self):
     users = UserModel.get_all()

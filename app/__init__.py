@@ -7,7 +7,6 @@ from .db import db
 from .ma import ma
 from .jwt import jwt
 from .models import UserModel
-from .views import main_bp
 from .resources import (
   User, UserList, GoogleRedirect, GoogleRegisterAuthorized, 
   GoogleLoginAuthorized
@@ -46,8 +45,6 @@ def create_app(environment=None):
   api.add_resource(GoogleRegisterAuthorized, '/google/register/authorized')
   api.add_resource(GoogleLoginAuthorized, '/google/login/authorized')
 
-  # add blueprints
-  app.register_blueprint(main_bp)
 
   return app
 
