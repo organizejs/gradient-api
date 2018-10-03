@@ -1,4 +1,4 @@
-from app import db, ma
+from gradient import db, ma
 
 class UserModel(db.Model):
   __tablename__ = "users"

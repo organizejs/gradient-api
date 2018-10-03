@@ -39,12 +39,11 @@ def create_app(environment=None):
     db.create_all()
 
   # add resources
-  api.add_resource(UserList, '/users')
   api.add_resource(User, '/users/<int:user_id>')
+  api.add_resource(UserList, '/users')
   api.add_resource(GoogleRedirect, '/google/redirect')
   api.add_resource(GoogleRegisterAuthorized, '/google/register/authorized')
   api.add_resource(GoogleLoginAuthorized, '/google/login/authorized')
-
 
   return app
 

@@ -22,6 +22,7 @@ class DevelopmentConfig(Config):
   Configuration for Development
   '''
   DEBUG = True
+  ENV = "development"
 
 
 class TestingConfig(Config):
@@ -31,6 +32,7 @@ class TestingConfig(Config):
   TESTING = True
   SQLALCHEMY_DATABASE_URI = os.getenv("TEST_DATABASE_URL")
   DEBUG = True
+  ENV = "testing"
 
 
 class StagingConfig(Config):
@@ -38,6 +40,7 @@ class StagingConfig(Config):
   Configuration for Staging
   '''
   DEBUG = True
+  ENV = "staging"
 
 
 class ProductionConfig(Config):
@@ -46,6 +49,7 @@ class ProductionConfig(Config):
   '''
   DEBUG = False
   TESTING = False
+  ENV = "production"
 
 
 '''
