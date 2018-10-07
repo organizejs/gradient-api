@@ -85,8 +85,10 @@ class TestCustomer(Base):
       )
     )
 
-    # assert failure
+    # assert failure & 
+    #   message should contain string "already registered"
     self.assertTrue(res.status_code >= 400)
+    self.assertIn("already registered", str(res.data))
 
 
   def test_registration_with_valid_input_data(self):
