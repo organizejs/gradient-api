@@ -3,3 +3,4 @@ from .auth import (
   GoogleLoginAuthorized
 )
 from .user import User, UserList
+from .customer import CustomerRegister

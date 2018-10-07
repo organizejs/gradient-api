@@ -18,11 +18,6 @@ class TestUser(Base):
     test /users endpoint when there exists users
     '''
     factory = Factory(self.app, self.db)
-    factory.create_user(
-      "test@gmail.com",
-      "tester_given_name",
-      "tester_family_name"
-    )
-    # TODO - not working
+    factory.create_user()
     res = self.client.get('/users')
     self.assertEqual(res.status_code, 200)

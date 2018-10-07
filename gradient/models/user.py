@@ -1,12 +1,19 @@
+from flask_jwt_extended import (
+  create_access_token, create_refresh_token
+)
 from gradient import db, ma
 
+
 class UserModel(db.Model):
-  __tablename__ = "users"
+  __tablename__ = "user"
 
   id = db.Column(db.Integer, primary_key=True)
   email = db.Column(db.String, unique=True, nullable=False)
   given_name = db.Column(db.String, nullable=False)
   family_name = db.Column(db.String, nullable=False)
+
+  customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
+  customer = db.relationship("CustomerModel", backref=db.backref("user", uselist=False))
 
 
   def __init__(self, email, given_name, family_name):
@@ -23,6 +30,14 @@ class UserModel(db.Model):
   def delete(self):
     db.session.delete(self)
     db.session.commit()
+
+
+  def generate_access_token(self):
+    return create_access_token(identity=self.email)    
+
+
+  def generate_refresh_token(self):
+    return create_refresh_token(identity=self.email)
 
 
   @classmethod

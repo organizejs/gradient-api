@@ -8,8 +8,12 @@ from .ma import ma
 from .jwt import jwt
 from .models import UserModel
 from .resources import (
-  User, UserList, GoogleRedirect, GoogleRegisterAuthorized, 
-  GoogleLoginAuthorized
+  User, 
+  UserList, 
+  GoogleRedirect, 
+  GoogleRegisterAuthorized, 
+  GoogleLoginAuthorized, 
+  CustomerRegister
 )
 
 
@@ -38,12 +42,21 @@ def create_app(environment=None):
     db.configure_mappers()
     db.create_all()
 
+  # ================= #
   # add resources
-  api.add_resource(User, '/users/<int:user_id>')
-  api.add_resource(UserList, '/users')
-  api.add_resource(GoogleRedirect, '/google/redirect')
-  api.add_resource(GoogleRegisterAuthorized, '/google/register/authorized')
-  api.add_resource(GoogleLoginAuthorized, '/google/login/authorized')
+  # ================= #
+
+  # Auth
+  api.add_resource(GoogleRedirect, "/google/redirect")
+  api.add_resource(GoogleRegisterAuthorized, "/google/register/authorized")
+  api.add_resource(GoogleLoginAuthorized, "/google/login/authorized")
+
+  # Customer registration
+  api.add_resource(CustomerRegister, "/customer/register")
+
+  # Users (testing)
+  api.add_resource(User, "/users/<int:user_id>")
+  api.add_resource(UserList, "/users")
 
   return app
 

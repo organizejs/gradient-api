@@ -1,7 +1,7 @@
-from flask_restful import Resource, abort
+from flask_restful import Resource
 from flask_jwt_extended import (
-  create_access_token, create_refresh_token, jwt_required, 
-  jwt_refresh_token_required, get_jwt_identity, get_raw_jwt,
+  jwt_required, jwt_refresh_token_required, 
+  get_jwt_identity, get_raw_jwt,
 )
 from webargs import fields, validate
 from webargs.flaskparser import use_kwargs, use_args, parser
@@ -80,7 +80,9 @@ class GoogleAuthorized(Resource):
     '''
     # TODO figure out how to verify state
     # if args["state"] != temporary_state_store["state"]:  
-    #   abort(401, message="Invalid state parameter")
+    #   return {
+    #     "message": "Invalid state parameter"
+    #   }, 401
 
     r = requests.post(
       "https://www.googleapis.com/oauth2/v4/token",
@@ -111,8 +113,9 @@ class GoogleAuthorized(Resource):
 
     # check that google account is email verified
     if not jwt_decoded["email_verified"]:
-      return abort(404, message=\
-        "Google user {} is not email verified.".format(jwt_decoded["email"]))
+      return {
+        "message": "Google user {} is not email verified.".format(jwt_decoded["email"])
+      }, 404
 
     return jwt_decoded
 
@@ -134,11 +137,13 @@ class GoogleLoginAuthorized(GoogleAuthorized):
     # check that user exists
     user = UserModel.get_by_email(jwt_decoded["email"])
     if user is None:
-      abort(404, message="User {} does not exist.".format(jwt_decoded["email"]))
+      return {
+        "message": "User {} does not exist.".format(jwt_decoded["email"])
+      }, 404
   
     # generate jwt tokens
-    access_token = create_access_token(identity=user.email)
-    refresh_token = create_refresh_token(identity=user.email)
+    access_token = user.generate_access_token()
+    refresh_token = user.generate_refresh_token()
 
     # return access/refresh token for client to use
     return {
@@ -165,7 +170,9 @@ class GoogleRegisterAuthorized(GoogleAuthorized):
     # check that user does not exists
     user = UserModel.get_by_email(jwt_decoded["email"])
     if user:
-      abort(404, message="User {} already exists.".format(jwt_decoded["email"]))
+      return {
+        "message": "User {} already exists.".format(jwt_decoded["email"])
+      }, 404
 
     # create user & save to db
     user = UserModel(
@@ -176,8 +183,8 @@ class GoogleRegisterAuthorized(GoogleAuthorized):
     user.save()
 
     # generate jwt tokens
-    access_token = create_access_token(identity=user.email)
-    refresh_token = create_refresh_token(identity=user.email)
+    access_token = user.generate_access_token()
+    refresh_token = user.generate_refresh_token()
 
     # return access/refresh token for client to use
     return {
