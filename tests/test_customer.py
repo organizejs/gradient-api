@@ -5,130 +5,46 @@ import json
 
 
 class TestCustomer(Base):
+    """
+    This class handles testing getting a customer
+    """
 
-  def test_registration_with_invalid_jwt(self):
-    '''
-    test /customer/register endpoint without required jwt
-    '''
-    # create a non-token
-    access_token = "a-non-token"
+    def test_with_invalid_jwt(self):
+        """
+        test /customer/<int:customer_id> endpoint with invalid jwt
+        """
+        # create customer
+        factory = Factory(self.app, self.db)
+        user = factory.create_user()
+        customer = factory.create_customer(user=user)
 
-    # registration request
-    res = self.client.post(
-      '/customer/register',
-      headers=dict(
-        authorization="Bearer {}".format(access_token),
-        content_type="application/json"
-      ),
-      data=dict(
-        income=100,
-        dependents=0,
-        marital_status="single"
-      )
-    )
-    
-    # assert error code
-    self.assertTrue(res.status_code >= 400)
- 
+        # create an invalid jwt
+        access_token = "a-non-token"
 
-  def test_registration_with_valid_jwt(self):
-    '''
-    test /customer/register endpoint with jwt
-    '''
-    # create user
-    factory = Factory(self.app, self.db)
-    user = factory.create_user()
-    access_token = user.generate_access_token()
+        # get
+        res = self.client.get(
+            "/customer/{}".format(customer.id),
+            headers=dict(authorization="Bearer {}".format(access_token)),
+        )
 
-    # user's access token to make registration request
-    res = self.client.post(
-      '/customer/register',
-      headers=dict(
-        authorization="Bearer {}".format(access_token),
-        content_type="application/json"
-      ),
-      data=dict(
-        income=100,
-        dependents=0,
-        marital_status="single"
-      )
-    )
+        # assert failed
+        self.assertTrue(res.status_code >= 400)
 
-    # assert success
-    self.assertEqual(res.status_code, 200)
-        
+    def test_with_invalid_jwt(self):
+        """
+        test /customer/<int:customer_id> endpoint with valid jwt
+        """
+        # create customer
+        factory = Factory(self.app, self.db)
+        user = factory.create_user()
+        customer = factory.create_customer(user=user)
+        access_token = user.generate_access_token()
 
-  def test_registration_on_already_registered_user(self):
-    '''
-    test /customer/register endpoint with an user that has
-      already registered before
-    '''
-    # create user
-    factory = Factory(self.app, self.db)
-    user = factory.create_user(
-      email="test_duplicate@mail.com"
-    )
-    access_token = user.generate_access_token()
-    customer = factory.create_customer(user=user)
-    
-    # register customer with existing email
-    res = self.client.post(
-      '/customer/register',
-      headers=dict(
-        authorization="Bearer {}".format(access_token),
-        content_type="application/json"
-      ),
-      data=dict(
-        income=100,
-        dependents=0,
-        marital_status="single"
-      )
-    )
+        # get
+        res = self.client.get(
+            "/customer/{}".format(customer.id),
+            headers=dict(authorization="Bearer {}".format(access_token))
+        )
 
-    # assert failure & 
-    #   message should contain string "already registered"
-    self.assertTrue(res.status_code >= 400)
-    self.assertIn("already registered", str(res.data))
-
-
-  def test_registration_with_valid_input_data(self):
-    '''
-    test /customer/register endpoint with invalid input data
-    '''
-    # create user
-    factory = Factory(self.app, self.db)
-    user = factory.create_user()
-    access_token = user.generate_access_token()
-
-    # missing a required field (income in this case)
-    invalid_data_0 = dict(
-      dependents=0,
-      marital_status="single"
-    )
-
-    # value of marital_status is not one of the accepted values 
-    invalid_data_1 = dict(
-      income=100, 
-      dependents=0,
-      marital_status="malformed"
-    )
-
-    invalid_data = [
-      invalid_data_0,
-      invalid_data_1,
-    ]
-
-    # test all invalid data inputs
-    for data in invalid_data:
-      res = self.client.post(
-        '/customer/register',
-        headers=dict(
-          authorization="Bearer {}".format(access_token),
-          content_type="application/json"
-        ),
-        data=data
-      )
-
-      # always assert error code
-      self.assertTrue(res.status_code >= 400)
-     
+        # assert success 
+        self.assertEqual(res.status_code, 200)
